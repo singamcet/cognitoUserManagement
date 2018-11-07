@@ -1,0 +1,20 @@
+{
+    "stack_name": "cognito-User",
+    "stage": "dev",
+    "region": "ap-south-1",
+    "awsConfiguration": {
+        "region": "ap-south-1",
+        "accessKeyId": "xxxxxxx",
+        "secretAccessKey": "xxxxx",
+        "cognitoEndpoint": "https://cognito-idp.ap-south-1.amazonaws.com",
+        "cognitoUserPoolId": "xxxxxx",
+        "cognitoClientId": "xxxxxx",
+        "dynamodbEndPoint": "https://dynamodb.ap-south-1.amazonaws.com"
+    },
+    "dev": {
+        "DB_PREFIX": "dev",
+        "api": {
+            "PERFIX": "1.0"
+        }
+    }
+}

@@ -1,0 +1,64 @@
+service: ${file(./config/config.json):stack_name}
+frameworkVersion: ">=1.28.0"
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  memorySize: 1024
+  profile: default # AWS CLI profile name
+  stage: ${file(./config/config.json):stage}
+  timeout: 60
+  region: ${file(./config/config.json):region}
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:*"
+      Resource:
+        - "arn:aws:dynamodb:*:*"
+    - Effect: "Allow"
+      Action:
+        - "logs:*"
+      Resource:
+        - "arn:aws:cloudformation:*:*"
+    - Effect: "Allow"
+      Action:
+        - "cognito-idp:AdminGetUser"
+      Resource:
+        - "arn:aws:cognito-idp:*:*"
+        - "*"
+  versionFunctions: false
+
+  environment:
+    DB_PREFIX: ${file(./config/config.json):${self:custom.stage}.DB_PREFIX}
+    API_PREFIX: ${file(./config/config.json):${self:custom.stage}.api.PERFIX}
+
+plugins:
+  - serverless-dynamodb-local
+  - serverless-offline
+custom:
+  stage: ${opt:stage, self:provider.stage}
+  DB_PREFIX: ${file(./config/config.yml):${self:custom.stage}.DB_PREFIX}
+  dynamodb:
+    start:
+      port: 8000
+      inMemory: false
+      migrate: false
+      seed: false
+    seed:
+      domain:
+        sources:
+          - table: ${self:custom.DB_PREFIX}-user
+            sources: [./offline/migrations/user.json]
+
+
+
+functions:
+  signup:
+    handler: handler.signup
+    events:
+      - http:
+          method: POST
+          path: ${file(./config/config.yml):api.PERFIX}/user/signup
+          cors: true
+
+
